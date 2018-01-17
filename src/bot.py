@@ -1,6 +1,6 @@
 import discord, config, logging
 from discord.ext import commands
-from cogs import music
+from cogs import music, error
 
 CONFIG = config.load_config() # load the config file
 
@@ -11,7 +11,8 @@ async def on_ready():
     logging.info(f"Logged in as {bot.user.name}")
 
 COGS = [
-    music.Music
+    music.Music,
+    error.CommandErrorHandler
 ]
 
 def add_cogs(bot):
