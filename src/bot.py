@@ -4,7 +4,7 @@ from cogs import music, error
 
 CONFIG = config.load_config() # load the config file
 
-bot = commands.Bot(command_prefix="^")
+bot = commands.Bot(command_prefix=CONFIG["prefix"])
 
 @bot.event
 async def on_ready():
