@@ -1,4 +1,4 @@
-import discord
+import discord, sys, traceback, logging
 from discord.ext import commands
 
 class CommandErrorHandler:
@@ -11,10 +11,9 @@ class CommandErrorHandler:
 
         error = getattr(error, "original", error) # get original error
 
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("There was an unexpected error invoking that command.")
-        else:
+        if isinstance(error, commands.CommandError):
             return await ctx.send(f"Error executing command `{ctx.command.name}`: {str(error)}")
 
-        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        await ctx.send("An unexpected error occurred while running that command.")
+        logging.warn("Ignoring exception in command {}:".format(ctx.command))
+        logging.warn("\n"+"".join(traceback.format_exception(type(error), error, error.__traceback__)))
