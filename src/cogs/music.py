@@ -98,6 +98,12 @@ class Music:
         """Displays information about the current song."""
         state = self.get_state(ctx.guild)
         await ctx.send("", embed=state.now_playing.get_embed())
+
+    @commands.command(aliases=["q", "playlist"])
+    @commands.guild_only()
+    @commands.check(audio_playing)
+    async def queue(self, ctx):
+        """Display the current play queue."""
         
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
@@ -109,7 +115,7 @@ class Music:
 
         if client and client.channel:
             try:
-                video = Video(url)
+                video = Video(url, ctx.author)
             except youtube_dl.DownloadError as e:
                 await ctx.send("There was an error downloading your video, sorry.") 
                 return
@@ -119,7 +125,7 @@ class Music:
             if ctx.author.voice != None and ctx.author.voice.channel != None:
                 channel = ctx.author.voice.channel
                 try:
-                    video = Video(url)
+                    video = Video(url, ctx.author)
                 except youtube_dl.DownloadError as e:
                     await ctx.send("There was an error downloading your video, sorry.") 
                     return
