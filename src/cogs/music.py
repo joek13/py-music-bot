@@ -104,6 +104,13 @@ class Music:
     @commands.check(audio_playing)
     async def queue(self, ctx):
         """Display the current play queue."""
+        state = self.get_state(ctx.guild)
+        if len(state.playlist) > 0:
+            message = [f"{len(state.playlist)} songs in queue:"]
+            message += [f"  {index+1}. **{song.title}** (requested by **{song.requested_by.name}**)" for (index, song) in enumerate(state.playlist)] # add individual songs
+            await ctx.send("\n".join(message))
+        else:
+            await ctx.send("The play queue is empty.")
         
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
