@@ -23,11 +23,13 @@ class Video:
             self.video_url = video["webpage_url"]
             self.title = video["title"]
             self.uploader = video["uploader"]
-            self.thumbnail = video["thumbnail"]
+            self.thumbnail = video["thumbnail"] if "thumbnail" in video else None
     def get_embed(self):
+        """Makes an embed out of this Video's information."""
         embed = discord.Embed(
             title=self.title,
             description=self.uploader,
             url=self.video_url)
-        embed.set_thumbnail(url=self.thumbnail)
+        if self.thumbnail:
+            embed.set_thumbnail(url=self.thumbnail)
         return embed

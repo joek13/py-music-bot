@@ -11,6 +11,9 @@ class CommandErrorHandler:
 
         error = getattr(error, "original", error) # get original error
 
+        if isinstance(error, commands.CommandNotFound):
+            return await ctx.send(f"That command does not exist. Please use `{self.bot.command_prefix}help` for a list of commands.")
+
         if isinstance(error, commands.CommandError):
             return await ctx.send(f"Error executing command `{ctx.command.name}`: {str(error)}")
 
