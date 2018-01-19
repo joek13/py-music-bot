@@ -56,7 +56,7 @@ class Music:
     @commands.guild_only()
     @commands.check(audio_playing)
     async def volume(self, ctx, volume: int):
-        """Change the volume of currently-playing audio (values 0-250)"""
+        """Change the volume of currently playing audio (values 0-250)."""
         state = self.get_state(ctx.guild)
 
         # clamp volume to [0, 250]
@@ -69,6 +69,35 @@ class Music:
 
         state.volume = float(volume) / 100.0
         client.source.volume = state.volume # update the AudioSource's volume to match
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.check(audio_playing)
+    async def skip(self, ctx):
+        """Skips the currently-playing song."""
+        state = self.get_state(ctx.guild)
+        client = ctx.guild.voice_client
+        client.stop()
+
+    def _play_song(self, client, state, song):
+        state.now_playing = song
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url), volume=state.volume)
+        def after_playing(err):
+            if len(state.playlist) > 0:
+                next_song = state.playlist.pop(0)
+                self._play_song(client, state, next_song)
+            else:
+                asyncio.run_coroutine_threadsafe(client.disconnect(), self.bot.loop)
+
+        client.play(source, after=after_playing)
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.check(audio_playing)
+    async def nowplaying(self, ctx):
+        """Displays information about the current song."""
+        state = self.get_state(ctx.guild)
+        await ctx.send("", embed=state.now_playing.get_embed())
         
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
@@ -76,9 +105,16 @@ class Music:
         """Plays audio hosted at <url> (or performs a search for <url> and plays the first result)."""
 
         client = ctx.guild.voice_client
+        state = self.get_state(ctx.guild) # get the guild's state
 
         if client and client.channel:
-            pass
+            try:
+                video = Video(url)
+            except youtube_dl.DownloadError as e:
+                await ctx.send("There was an error downloading your video, sorry.") 
+                return
+            state.playlist.append(video)
+            await ctx.send("Added to queue.", embed=video.get_embed())
         else:
             if ctx.author.voice != None and ctx.author.voice.channel != None:
                 channel = ctx.author.voice.channel
@@ -88,16 +124,7 @@ class Music:
                     await ctx.send("There was an error downloading your video, sorry.") 
                     return
                 client = await channel.connect()
-                state = self.get_state(ctx.guild) # get the guild's state
-                source = discord.PCMVolumeTransformer(
-                            discord.FFmpegPCMAudio(video.stream_url),
-                            volume=state.volume)
-                def after_playing(error):
-                    if error:
-                        ctx.send(f"Error playing audio: {error}")
-                        logging.warn(f"Error playing audio: {error}")
-                    asyncio.run_coroutine_threadsafe(client.disconnect(), self.bot.loop)
-                client.play(source, after=after_playing)
+                self._play_song(client, state, video)
                 await ctx.send("", embed=video.get_embed())
                 logging.info(f"Now playing '{video.title}'")
             else:
@@ -107,3 +134,5 @@ class GuildState:
     """Helper class managing per-guild state."""
     def __init__(self):
         self.volume = 1.0
+        self.playlist = []
+        self.now_playing = None
