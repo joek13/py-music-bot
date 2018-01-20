@@ -165,6 +165,7 @@ class Music:
                     client.stop()
                 elif reaction.emoji == "⏮":
                     state.playlist.insert(0, state.now_playing) # insert current song at beginning of playlist
+                    client.stop() # skip ahead
                 elif reaction.emoji == "❌":
                     await client.disconnect()
                     state.playlist = []
