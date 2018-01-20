@@ -94,7 +94,7 @@ class Music:
 
         client.play(source, after=after_playing)
 
-    @commands.command()
+    @commands.command(aliases=["np"])
     @commands.guild_only()
     @commands.check(audio_playing)
     async def nowplaying(self, ctx):
