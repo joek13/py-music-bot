@@ -1,6 +1,6 @@
 import discord, config, logging
 from discord.ext import commands
-from cogs import music, error
+from cogs import music, error, meta
 
 CONFIG = config.load_config() # load the config file
 
@@ -12,7 +12,8 @@ async def on_ready():
 
 COGS = [
     music.Music,
-    error.CommandErrorHandler
+    error.CommandErrorHandler,
+    meta.Meta
 ]
 
 def add_cogs(bot):
