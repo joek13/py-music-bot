@@ -1,4 +1,4 @@
-import discord, config, logging
+import discord, config, logging, sys
 from discord.ext import commands
 from cogs import music, error, meta
 
@@ -22,4 +22,7 @@ def add_cogs(bot):
 
 def run():
     add_cogs(bot)
+    if CONFIG["token"] == "":
+        raise ValueError("No token has been provided. Please ensure that config.toml contains the bot token.")
+        sys.exit(1)
     bot.run(CONFIG["token"])
