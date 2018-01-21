@@ -22,7 +22,7 @@ class Video:
             self.stream_url = video_format["url"]
             self.video_url = video["webpage_url"]
             self.title = video["title"]
-            self.uploader = video["uploader"]
+            self.uploader = video["uploader"] if "uploader" in video else ""
             self.thumbnail = video["thumbnail"] if "thumbnail" in video else None
             self.requested_by = requested_by
     def get_embed(self):
