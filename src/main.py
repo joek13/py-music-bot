@@ -1,4 +1,4 @@
-import bot, logging
+import bot, logging, config
 
 if __name__ == "__main__":
     formatter = logging.Formatter(fmt="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s")

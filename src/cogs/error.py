@@ -2,8 +2,9 @@ import discord, sys, traceback, logging
 from discord.ext import commands
 
 class CommandErrorHandler:
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
+        self.config = config
 
     async def on_command_error(self, ctx, error):
         if hasattr(ctx.command, "on_error"):

@@ -1,7 +1,12 @@
 import toml, logging, os
+
 EXAMPLE_CONFIG = """\"token\"=\"\" # the bot's token
 \"prefix\"=\"!\" # prefix used to denote commands
+
+[music]
+# Options for the music commands
 """
+
 def load_config(path="./config.toml"):
     """Loads the config from `path`"""
     if os.path.exists(path) and os.path.isfile(path):

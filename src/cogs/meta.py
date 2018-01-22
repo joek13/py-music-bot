@@ -5,9 +5,10 @@ import util
 
 class Meta:
     """Commands relating to the bot itself."""
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
         self.start_time = datetime.now()
+        self.config = config
         bot.remove_command("help")
 
     @commands.command(name="help")

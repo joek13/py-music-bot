@@ -13,10 +13,22 @@ async def audio_playing(ctx):
         return True
     else:
         raise commands.CommandError("Not currently playing any audio.")
+
+async def in_voice_channel(ctx):
+    """Checks that the command sender is in the same voice channel as the bot."""
+    voice = ctx.author.voice
+    bot_voice = ctx.guild.voice_client
+    if voice and bot_voice and voice.channel and bot_voice.channel and voice.channel == bot_voice.channel:
+        return True
+    else:
+        raise commands.CommandError("You need to be in the channel to do that.")
+
+
 class Music:
     """Bot commands to help play music."""
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
+        self.config = config["music"]
         self.states = {}
 
     def get_state(self, guild):
@@ -29,6 +41,7 @@ class Music:
 
     @commands.command(aliases=["stop"])
     @commands.guild_only()
+    @commands.has_permissions(administrator=True)
     async def leave(self, ctx):
         """Leaves the voice channel, if currently in one."""
         client = ctx.guild.voice_client
@@ -44,6 +57,7 @@ class Music:
     @commands.command(aliases=["resume", "p"])
     @commands.guild_only()
     @commands.check(audio_playing)
+    @commands.check(in_voice_channel)
     async def pause(self, ctx):
         """Pauses any currently playing audio."""
         client = ctx.guild.voice_client
@@ -58,6 +72,7 @@ class Music:
     @commands.command(aliases=["vol", "v"])
     @commands.guild_only()
     @commands.check(audio_playing)
+    @commands.check(in_voice_channel)
     async def volume(self, ctx, volume: int):
         """Change the volume of currently playing audio (values 0-250)."""
         state = self.get_state(ctx.guild)
@@ -76,6 +91,7 @@ class Music:
     @commands.command()
     @commands.guild_only()
     @commands.check(audio_playing)
+    @commands.check(in_voice_channel)
     async def skip(self, ctx):
         """Skips the currently-playing song."""
         state = self.get_state(ctx.guild)
@@ -150,29 +166,29 @@ class Music:
                 raise commands.CommandError("You need to be in a voice channel to do that.")
 
     async def on_reaction_add(self, reaction, user):
+        """Respods to reactions added to the bot's messages, allowing reactions to control playback."""
         message = reaction.message
         if user != self.bot.user and message.author == self.bot.user:
             await message.remove_reaction(reaction, user)
             if message.guild and message.guild.voice_client:
+                user_in_channel = user.voice and user.voice.channel and user.voice.channel == message.guild.voice_client.channel
+                permissions = message.channel.permissions_for(user)
                 guild = message.guild
-                client = message.guild.voice_client
                 state = self.get_state(guild)
-                if reaction.emoji == "⏯":
-                    # pause audio
-                    self._pause_audio(client)
-                elif reaction.emoji == "⏭":
-                    # skip audio
-                    client.stop()
-                elif reaction.emoji == "⏮":
-                    state.playlist.insert(0, state.now_playing) # insert current song at beginning of playlist
-                    client.stop() # skip ahead
-                elif reaction.emoji == "❌":
-                    await client.disconnect()
-                    state.playlist = []
-                    state.now_playing = None
+                if permissions.administrator or (user_in_channel and state.is_requester(user)):
+                    client = message.guild.voice_client
+                    if reaction.emoji == "⏯":
+                        # pause audio
+                        self._pause_audio(client)
+                    elif reaction.emoji == "⏭":
+                        # skip audio
+                        client.stop()
+                    elif reaction.emoji == "⏮":
+                        state.playlist.insert(0, state.now_playing) # insert current song at beginning of playlist
+                        client.stop() # skip ahead
     async def _add_reaction_controls(self, message):
         """Adds a 'control-panel' of reactions to a message that can be used to control the bot."""
-        CONTROLS = ["❌", "⏮", "⏯", "⏭"]
+        CONTROLS = ["⏮", "⏯", "⏭"]
         for control in CONTROLS:
             await message.add_reaction(control)
 
@@ -182,3 +198,6 @@ class GuildState:
         self.volume = 1.0
         self.playlist = []
         self.now_playing = None
+
+    def is_requester(self, user):
+        return self.now_playing.requested_by == user
