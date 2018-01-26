@@ -23,6 +23,14 @@ async def in_voice_channel(ctx):
     else:
         raise commands.CommandError("You need to be in the channel to do that.")
 
+async def is_audio_requester(ctx):
+    music = ctx.bot.get_cog("Music")
+    state = music.get_state(ctx.guild)
+    permissions = ctx.channel.permissions_for(ctx.author)
+    if permissions.administrator or state.is_requester(ctx.author):
+        return True
+    else:
+        raise commands.CommandError("You need to be the song requester to do that.")
 
 class Music:
     """Bot commands to help play music."""
@@ -58,6 +66,7 @@ class Music:
     @commands.guild_only()
     @commands.check(audio_playing)
     @commands.check(in_voice_channel)
+    @commands.check(is_audio_requester)
     async def pause(self, ctx):
         """Pauses any currently playing audio."""
         client = ctx.guild.voice_client
@@ -73,6 +82,7 @@ class Music:
     @commands.guild_only()
     @commands.check(audio_playing)
     @commands.check(in_voice_channel)
+    @commands.check(is_audio_requester)
     async def volume(self, ctx, volume: int):
         """Change the volume of currently playing audio (values 0-250)."""
         state = self.get_state(ctx.guild)
@@ -92,6 +102,7 @@ class Music:
     @commands.guild_only()
     @commands.check(audio_playing)
     @commands.check(in_voice_channel)
+    @commands.check(is_audio_requester)
     async def skip(self, ctx):
         """Skips the currently-playing song."""
         state = self.get_state(ctx.guild)
