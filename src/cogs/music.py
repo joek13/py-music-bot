@@ -142,6 +142,15 @@ class Music:
             await ctx.send("\n".join(message))
         else:
             await ctx.send("The play queue is empty.")
+
+    @commands.command(aliases=["cq"])
+    @commands.guild_only()
+    @commands.check(audio_playing)
+    @commands.has_permissions(administrator=True)
+    async def clearqueue(self, ctx):
+        """Clears the play queue without leaving the channel."""
+        state = self.get_state(ctx.guild)
+        state.playlist = []
         
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
