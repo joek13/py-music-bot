@@ -6,6 +6,8 @@ EXAMPLE_CONFIG = """\"token\"=\"\" # the bot's token
 [music]
 # Options for the music commands
 "max_volume"=250 # Max audio volume. Set to -1 for unlimited.
+"vote_skip"=true # whether vote-skipping is enabled
+"vote_skip_ratio"=0.5 # the minimum ratio of votes needed to skip a song
 """
 
 

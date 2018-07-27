@@ -3,6 +3,7 @@ import discord
 import asyncio
 import youtube_dl
 import logging
+import math
 from urllib import request
 from video import Video
 
@@ -113,15 +114,47 @@ class Music:
     @commands.guild_only()
     @commands.check(audio_playing)
     @commands.check(in_voice_channel)
-    @commands.check(is_audio_requester)
     async def skip(self, ctx):
-        """Skips the currently-playing song."""
+        """Skips the currently-playing song, or votes to skip it."""
         state = self.get_state(ctx.guild)
         client = ctx.guild.voice_client
-        client.stop()
+        if ctx.channel.permissions_for(
+                ctx.author).administrator or state.is_requester(ctx.author):
+            # immediately skip if requester or admin
+            client.stop()
+        elif self.config["vote_skip"]:
+            # vote to skip song
+            channel = client.channel
+            self._vote_skip(channel, ctx.author)
+            # announce vote
+            users_in_channel = len([
+                member for member in channel.members if not member.bot
+            ])  # don't count bots
+            required_votes = math.ceil(
+                self.config["vote_skip_ratio"] * users_in_channel)
+            await ctx.send(
+                f"{ctx.author.mention} voted to skip ({len(state.skip_votes)}/{required_votes} votes)"
+            )
+        else:
+            raise CommandError("Sorry, vote skipping is disabled.")
+
+    def _vote_skip(self, channel, member):
+        """Register a vote for `member` to skip the song playing."""
+        logging.info(f"{member.name} votes to skip")
+        state = self.get_state(channel.guild)
+        state.skip_votes.add(member)
+        users_in_channel = len([
+            member for member in channel.members if not member.bot
+        ])  # don't count bots
+        if (float(len(state.skip_votes)) /
+                users_in_channel) >= self.config["vote_skip_ratio"]:
+            # enough members have voted to skip, so skip the song
+            logging.info(f"Enough votes, skipping...")
+            channel.guild.voice_client.stop()
 
     def _play_song(self, client, state, song):
         state.now_playing = song
+        state.skip_votes = set()  # clear skip votes
         source = discord.PCMVolumeTransformer(
             discord.FFmpegPCMAudio(song.stream_url), volume=state.volume)
 
@@ -216,8 +249,9 @@ class Music:
                 permissions = message.channel.permissions_for(user)
                 guild = message.guild
                 state = self.get_state(guild)
-                if permissions.administrator or (user_in_channel
-                                                 and state.is_requester(user)):
+                #  if permissions.administrator or (user_in_channel
+                #  and state.is_requester(user)):
+                if False:
                     client = message.guild.voice_client
                     if reaction.emoji == "⏯":
                         # pause audio
@@ -230,6 +264,21 @@ class Music:
                             0, state.now_playing
                         )  # insert current song at beginning of playlist
                         client.stop()  # skip ahead
+                elif reaction.emoji == "⏭" and self.config["vote_skip"] and user_in_channel and message.guild.voice_client and message.guild.voice_client.channel:
+                    # ensure that skip was pressed, that vote skipping is enabled, the user is in the channel, and that the bot is in a voice channel
+                    voice_channel = message.guild.voice_client.channel
+                    self._vote_skip(voice_channel, user)
+                    # announce vote
+                    channel = message.channel
+                    users_in_channel = len([
+                        member for member in voice_channel.members
+                        if not member.bot
+                    ])  # don't count bots
+                    required_votes = math.ceil(
+                        self.config["vote_skip_ratio"] * users_in_channel)
+                    await channel.send(
+                        f"{user.mention} voted to skip ({len(state.skip_votes)}/{required_votes} votes)"
+                    )
 
     async def _add_reaction_controls(self, message):
         """Adds a 'control-panel' of reactions to a message that can be used to control the bot."""
@@ -244,6 +293,7 @@ class GuildState:
     def __init__(self):
         self.volume = 1.0
         self.playlist = []
+        self.skip_votes = set()
         self.now_playing = None
 
     def is_requester(self, user):
