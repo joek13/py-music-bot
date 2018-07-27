@@ -115,7 +115,7 @@ class Music:
     @commands.check(audio_playing)
     @commands.check(in_voice_channel)
     async def skip(self, ctx):
-        """Skips the currently-playing song, or votes to skip it."""
+        """Skips the currently playing song, or votes to skip it."""
         state = self.get_state(ctx.guild)
         client = ctx.guild.voice_client
         if ctx.channel.permissions_for(
