@@ -36,7 +36,7 @@ class Music:
     """Bot commands to help play music."""
     def __init__(self, bot, config):
         self.bot = bot
-        self.config = config["music"]
+        self.config = config[__name__.split(".")[-1]] # retrieve module name, find config entry
         self.states = {}
 
     def get_state(self, guild):
