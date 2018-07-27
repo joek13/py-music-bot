@@ -6,6 +6,7 @@ import logging
 from urllib import request
 from video import Video
 
+
 async def audio_playing(ctx):
     """Checks that audio is currently playing before continuing."""
     client = ctx.guild.voice_client
@@ -14,6 +15,7 @@ async def audio_playing(ctx):
     else:
         raise commands.CommandError("Not currently playing any audio.")
 
+
 async def in_voice_channel(ctx):
     """Checks that the command sender is in the same voice channel as the bot."""
     voice = ctx.author.voice
@@ -21,7 +23,9 @@ async def in_voice_channel(ctx):
     if voice and bot_voice and voice.channel and bot_voice.channel and voice.channel == bot_voice.channel:
         return True
     else:
-        raise commands.CommandError("You need to be in the channel to do that.")
+        raise commands.CommandError(
+            "You need to be in the channel to do that.")
+
 
 async def is_audio_requester(ctx):
     music = ctx.bot.get_cog("Music")
@@ -30,13 +34,17 @@ async def is_audio_requester(ctx):
     if permissions.administrator or state.is_requester(ctx.author):
         return True
     else:
-        raise commands.CommandError("You need to be the song requester to do that.")
+        raise commands.CommandError(
+            "You need to be the song requester to do that.")
+
 
 class Music:
     """Bot commands to help play music."""
+
     def __init__(self, bot, config):
         self.bot = bot
-        self.config = config[__name__.split(".")[-1]] # retrieve module name, find config entry
+        self.config = config[__name__.split(".")[
+            -1]]  # retrieve module name, find config entry
         self.states = {}
 
     def get_state(self, guild):
@@ -60,7 +68,6 @@ class Music:
             state.now_playing = None
         else:
             raise commands.CommandError("Not in a voice channel.")
-
 
     @commands.command(aliases=["resume", "p"])
     @commands.guild_only()
@@ -96,7 +103,7 @@ class Music:
         client = ctx.guild.voice_client
 
         state.volume = float(volume) / 100.0
-        client.source.volume = state.volume # update the AudioSource's volume to match
+        client.source.volume = state.volume  # update the AudioSource's volume to match
 
     @commands.command()
     @commands.guild_only()
@@ -111,13 +118,16 @@ class Music:
 
     def _play_song(self, client, state, song):
         state.now_playing = song
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(song.stream_url), volume=state.volume)
+        source = discord.PCMVolumeTransformer(
+            discord.FFmpegPCMAudio(song.stream_url), volume=state.volume)
+
         def after_playing(err):
             if len(state.playlist) > 0:
                 next_song = state.playlist.pop(0)
                 self._play_song(client, state, next_song)
             else:
-                asyncio.run_coroutine_threadsafe(client.disconnect(), self.bot.loop)
+                asyncio.run_coroutine_threadsafe(client.disconnect(),
+                                                 self.bot.loop)
 
         client.play(source, after=after_playing)
 
@@ -138,7 +148,10 @@ class Music:
         state = self.get_state(ctx.guild)
         if len(state.playlist) > 0:
             message = [f"{len(state.playlist)} songs in queue:"]
-            message += [f"  {index+1}. **{song.title}** (requested by **{song.requested_by.name}**)" for (index, song) in enumerate(state.playlist)] # add individual songs
+            message += [
+                f"  {index+1}. **{song.title}** (requested by **{song.requested_by.name}**)"
+                for (index, song) in enumerate(state.playlist)
+            ]  # add individual songs
             await ctx.send("\n".join(message))
         else:
             await ctx.send("The play queue is empty.")
@@ -151,23 +164,25 @@ class Music:
         """Clears the play queue without leaving the channel."""
         state = self.get_state(ctx.guild)
         state.playlist = []
-        
+
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
     async def play(self, ctx, *, url):
         """Plays audio hosted at <url> (or performs a search for <url> and plays the first result)."""
 
         client = ctx.guild.voice_client
-        state = self.get_state(ctx.guild) # get the guild's state
+        state = self.get_state(ctx.guild)  # get the guild's state
 
         if client and client.channel:
             try:
                 video = Video(url, ctx.author)
             except youtube_dl.DownloadError as e:
-                await ctx.send("There was an error downloading your video, sorry.") 
+                await ctx.send(
+                    "There was an error downloading your video, sorry.")
                 return
             state.playlist.append(video)
-            message = await ctx.send("Added to queue.", embed=video.get_embed())
+            message = await ctx.send(
+                "Added to queue.", embed=video.get_embed())
             await self._add_reaction_controls(message)
         else:
             if ctx.author.voice != None and ctx.author.voice.channel != None:
@@ -175,7 +190,8 @@ class Music:
                 try:
                     video = Video(url, ctx.author)
                 except youtube_dl.DownloadError as e:
-                    await ctx.send("There was an error downloading your video, sorry.") 
+                    await ctx.send(
+                        "There was an error downloading your video, sorry.")
                     return
                 client = await channel.connect()
                 self._play_song(client, state, video)
@@ -183,7 +199,8 @@ class Music:
                 await self._add_reaction_controls(message)
                 logging.info(f"Now playing '{video.title}'")
             else:
-                raise commands.CommandError("You need to be in a voice channel to do that.")
+                raise commands.CommandError(
+                    "You need to be in a voice channel to do that.")
 
     async def on_reaction_add(self, reaction, user):
         """Respods to reactions added to the bot's messages, allowing reactions to control playback."""
@@ -195,7 +212,8 @@ class Music:
                 permissions = message.channel.permissions_for(user)
                 guild = message.guild
                 state = self.get_state(guild)
-                if permissions.administrator or (user_in_channel and state.is_requester(user)):
+                if permissions.administrator or (user_in_channel
+                                                 and state.is_requester(user)):
                     client = message.guild.voice_client
                     if reaction.emoji == "⏯":
                         # pause audio
@@ -204,16 +222,21 @@ class Music:
                         # skip audio
                         client.stop()
                     elif reaction.emoji == "⏮":
-                        state.playlist.insert(0, state.now_playing) # insert current song at beginning of playlist
-                        client.stop() # skip ahead
+                        state.playlist.insert(
+                            0, state.now_playing
+                        )  # insert current song at beginning of playlist
+                        client.stop()  # skip ahead
+
     async def _add_reaction_controls(self, message):
         """Adds a 'control-panel' of reactions to a message that can be used to control the bot."""
         CONTROLS = ["⏮", "⏯", "⏭"]
         for control in CONTROLS:
             await message.add_reaction(control)
 
+
 class GuildState:
     """Helper class managing per-guild state."""
+
     def __init__(self):
         self.volume = 1.0
         self.playlist = []
