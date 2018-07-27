@@ -94,11 +94,15 @@ class Music:
         """Change the volume of currently playing audio (values 0-250)."""
         state = self.get_state(ctx.guild)
 
-        # clamp volume to [0, 250]
+        # make sure volume is nonnegative
         if volume < 0:
             volume = 0
-        elif volume > 250:
-            volume = 250
+
+        max_vol = self.config["max_volume"]
+        if max_vol > -1:  # check if max volume is set
+            # clamp volume to [0, max_vol]
+            if volume > max_vol:
+                volume = max_vol
 
         client = ctx.guild.voice_client
 
