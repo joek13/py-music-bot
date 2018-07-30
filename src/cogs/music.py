@@ -29,6 +29,7 @@ async def in_voice_channel(ctx):
 
 
 async def is_audio_requester(ctx):
+    """Checks that the command sender is the song requester."""
     music = ctx.bot.get_cog("Music")
     state = music.get_state(ctx.guild)
     permissions = ctx.channel.permissions_for(ctx.author)
