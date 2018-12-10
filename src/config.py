@@ -8,6 +8,8 @@ EXAMPLE_CONFIG = """\"token\"=\"\" # the bot's token
 "max_volume"=250 # Max audio volume. Set to -1 for unlimited.
 "vote_skip"=true # whether vote-skipping is enabled
 "vote_skip_ratio"=0.5 # the minimum ratio of votes needed to skip a song
+[tips]
+"github_url"="https://github.com/joek13/py-music-bot"
 """
 
 
