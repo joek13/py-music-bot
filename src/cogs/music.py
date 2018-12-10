@@ -215,6 +215,7 @@ class Music:
             try:
                 video = Video(url, ctx.author)
             except youtube_dl.DownloadError as e:
+                logging.warn(f"Error downloading video: {e}")
                 await ctx.send(
                     "There was an error downloading your video, sorry.")
                 return
