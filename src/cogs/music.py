@@ -184,15 +184,20 @@ class Music:
     async def queue(self, ctx):
         """Display the current play queue."""
         state = self.get_state(ctx.guild)
-        if len(state.playlist) > 0:
-            message = [f"{len(state.playlist)} songs in queue:"]
+        await ctx.send(self._queue_text(state.playlist))
+
+    def _queue_text(self, queue):
+        """Returns a block of text describing a given song queue."""
+        if len(queue) > 0:
+            message = [f"{len(queue)} songs in queue:"]
             message += [
                 f"  {index+1}. **{song.title}** (requested by **{song.requested_by.name}**)"
-                for (index, song) in enumerate(state.playlist)
+                for (index, song) in enumerate(queue)
             ]  # add individual songs
-            await ctx.send("\n".join(message))
+            return "\n".join(message)
         else:
-            await ctx.send("The play queue is empty.")
+            return "The play queue is empty."
+
 
     @commands.command(aliases=["cq"])
     @commands.guild_only()
@@ -202,6 +207,21 @@ class Music:
         """Clears the play queue without leaving the channel."""
         state = self.get_state(ctx.guild)
         state.playlist = []
+
+    @commands.command(aliases=["jq"])
+    @commands.guild_only()
+    @commands.check(audio_playing)
+    @commands.has_permissions(administrator=True)
+    async def jumpqueue(self, ctx, song: int, new_index: int):
+        """Moves song at an index to `new_index` in queue."""
+        state = self.get_state(ctx.guild) # get state for this guild
+        if 1 <= song <= len(state.playlist) and 1 <= new_index:
+            song = state.playlist.pop(song-1) # take song at index...
+            state.playlist.insert(new_index-1, song) # and insert it.
+
+            await ctx.send(self._queue_text(state.playlist))
+        else:
+            raise commands.CommandError("You must use a valid index.")
 
     @commands.command(brief="Plays audio from <url>.")
     @commands.guild_only()
