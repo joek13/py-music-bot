@@ -1,4 +1,6 @@
-import discord, logging, sys
+import discord
+import logging
+import sys
 from discord.ext import commands
 from cogs import music, error, meta, tips
 import config

@@ -1,9 +1,10 @@
-import bot, logging, config
+import bot
+import logging
+import config
 
 if __name__ == "__main__":
     formatter = logging.Formatter(
-        fmt=
-        "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
+        fmt="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
     )
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)

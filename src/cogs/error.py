@@ -1,4 +1,7 @@
-import discord, sys, traceback, logging
+import discord
+import sys
+import traceback
+import logging
 from discord.ext import commands
 
 

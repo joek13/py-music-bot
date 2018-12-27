@@ -1,4 +1,6 @@
-import toml, logging, os
+import toml
+import logging
+import os
 
 EXAMPLE_CONFIG = """\"token\"=\"\" # the bot's token
 \"prefix\"=\"!\" # prefix used to denote commands
