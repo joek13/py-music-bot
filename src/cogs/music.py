@@ -137,7 +137,7 @@ class Music:
                 f"{ctx.author.mention} voted to skip ({len(state.skip_votes)}/{required_votes} votes)"
             )
         else:
-            raise CommandError("Sorry, vote skipping is disabled.")
+            raise commands.CommandError("Sorry, vote skipping is disabled.")
 
     def _vote_skip(self, channel, member):
         """Register a vote for `member` to skip the song playing."""
