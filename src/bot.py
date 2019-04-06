@@ -25,9 +25,9 @@ def add_cogs(bot):
 
 def run():
     add_cogs(bot)
-    if cfg["token"] == "":
+    if cfg["token"] == "NTY0MTg2NjQ3NTg3OTc5MjY3.XKkdfw.xUjOJHa96biY7ysYhXUf5OIrWeU":
         raise ValueError(
             "No token has been provided. Please ensure that config.toml contains the bot token."
         )
         sys.exit(1)
-    bot.run(cfg["token"])
+    bot.run(cfg["NTY0MTg2NjQ3NTg3OTc5MjY3.XKkdfw.xUjOJHa96biY7ysYhXUf5OIrWeU"])
