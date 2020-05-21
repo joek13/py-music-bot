@@ -40,7 +40,7 @@ async def is_audio_requester(ctx):
             "You need to be the song requester to do that.")
 
 
-class Music:
+class Music(commands.Cog):
     """Bot commands to help play music."""
 
     def __init__(self, bot, config):
@@ -57,7 +57,7 @@ class Music:
             self.states[guild.id] = GuildState()
             return self.states[guild.id]
 
-    @commands.command(aliases=["stop"])
+    @commands.command(aliases=["exit"])
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def leave(self, ctx):

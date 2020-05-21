@@ -1,5 +1,6 @@
 import youtube_dl as ytdl
 import discord
+from discord.ext import commands
 
 YTDL_OPTS = {
     "default_search": "ytsearch",
@@ -9,7 +10,7 @@ YTDL_OPTS = {
 }
 
 
-class Video:
+class Video(commands.Cog):
     """Class containing information about a particular video."""
 
     def __init__(self, url_or_search, requested_by):

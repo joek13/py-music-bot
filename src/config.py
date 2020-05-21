@@ -17,6 +17,7 @@ EXAMPLE_CONFIG = """\"token\"=\"\" # the bot's token
 
 def load_config(path="./config.toml"):
     """Loads the config from `path`"""
+    print("loaded config")
     if os.path.exists(path) and os.path.isfile(path):
         config = toml.load(path)
         return config
