@@ -4,7 +4,7 @@ from datetime import datetime
 import util
 
 
-class Meta:
+class Meta(commands.Cog):
     """Commands relating to the bot itself."""
 
     def __init__(self, bot, config):

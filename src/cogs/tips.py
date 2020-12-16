@@ -3,7 +3,7 @@ import discord
 import random
 
 
-class Tips:
+class Tips(commands.Cog):
     """Commands for providing tips about using the bot."""
 
     def __init__(self, bot, config):

@@ -40,7 +40,7 @@ async def is_audio_requester(ctx):
             "You need to be the song requester to do that.")
 
 
-class Music:
+class Music(commands.Cog):
     """Bot commands to help play music."""
 
     def __init__(self, bot, config):
