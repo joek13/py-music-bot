@@ -1,10 +1,14 @@
-# Discord.py MusicBot
+# discord.py MusicBot
 
 A simple musicbot written in Discord.py that utilizes YoutubeDL and ffmpeg to stream audio. Use the `help` command to get a list of commands!
 
 ## Additional Dependencies
 
-Python dependencies are denoted in `requirements.txt`. To allow for streaming of media, make sure `opus` and `ffmpeg` are installed.
+Make sure that [pipenv](https://pipenv.pypa.io/en/latest/) is installed. Navigate to the project directory, and run `pipenv install` to install the Python dependencies.
+
+To allow for streaming of media, make sure `opus` and `ffmpeg` are installed and in your environment.
+
+To run the bot, activate the virtual environment with `pipenv shell` and then `python src/main.py` to start the bot.
 
 ## Configuring
 
