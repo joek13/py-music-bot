@@ -9,6 +9,7 @@ verify_ssl = true
 toml = "*"
 youtube-dl = "*"
 "discord.py" = "*"
+pynacl = "*"
 
 [requires]
 python_version = "3.8"
