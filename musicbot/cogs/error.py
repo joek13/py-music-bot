@@ -9,6 +9,7 @@ class CommandErrorHandler(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot
         self.config = config
+        self.bot.add_listener(self.on_command_error, "on_command_error")
 
     async def on_command_error(self, ctx, error):
         if hasattr(ctx.command, "on_error"):
