@@ -2,8 +2,8 @@ import discord
 import logging
 import sys
 from discord.ext import commands
-from cogs import music, error, meta, tips
-import config
+from .cogs import music, error, meta, tips
+from . import config
 
 cfg = config.load_config()
 

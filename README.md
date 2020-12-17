@@ -8,7 +8,7 @@ Make sure that [pipenv](https://pipenv.pypa.io/en/latest/) is installed. Navigat
 
 To allow for streaming of media, make sure `opus` and `ffmpeg` are installed and in your environment.
 
-To run the bot, activate the virtual environment with `pipenv shell` and then `python src/main.py` to start the bot.
+To run the bot, activate the virtual environment with `pipenv shell` and then `python -m musicbot` to start the bot.
 
 ## Configuring
 

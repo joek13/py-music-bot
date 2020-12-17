@@ -5,7 +5,7 @@ import youtube_dl
 import logging
 import math
 from urllib import request
-from video import Video
+from ..video import Video
 
 
 async def audio_playing(ctx):
