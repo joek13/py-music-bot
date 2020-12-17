@@ -216,8 +216,8 @@ class Music(commands.Cog):
         """Moves song at an index to `new_index` in queue."""
         state = self.get_state(ctx.guild)  # get state for this guild
         if 1 <= song <= len(state.playlist) and 1 <= new_index:
-            song = state.playlist.pop(song-1)  # take song at index...
-            state.playlist.insert(new_index-1, song)  # and insert it.
+            song = state.playlist.pop(song - 1)  # take song at index...
+            state.playlist.insert(new_index - 1, song)  # and insert it.
 
             await ctx.send(self._queue_text(state.playlist))
         else:
@@ -244,7 +244,7 @@ class Music(commands.Cog):
                 "Added to queue.", embed=video.get_embed())
             await self._add_reaction_controls(message)
         else:
-            if ctx.author.voice != None and ctx.author.voice.channel != None:
+            if ctx.author.voice is not None and ctx.author.voice.channel is not None:
                 channel = ctx.author.voice.channel
                 try:
                     video = Video(url, ctx.author)
@@ -271,7 +271,8 @@ class Music(commands.Cog):
                 permissions = message.channel.permissions_for(user)
                 guild = message.guild
                 state = self.get_state(guild)
-                if permissions.administrator or (user_in_channel and state.is_requester(user)):
+                if permissions.administrator or (
+                        user_in_channel and state.is_requester(user)):
                     client = message.guild.voice_client
                     if reaction.emoji == "⏯":
                         # pause audio
@@ -285,7 +286,9 @@ class Music(commands.Cog):
                         )  # insert current song at beginning of playlist
                         client.stop()  # skip ahead
                 elif reaction.emoji == "⏭" and self.config["vote_skip"] and user_in_channel and message.guild.voice_client and message.guild.voice_client.channel:
-                    # ensure that skip was pressed, that vote skipping is enabled, the user is in the channel, and that the bot is in a voice channel
+                    # ensure that skip was pressed, that vote skipping is
+                    # enabled, the user is in the channel, and that the bot is
+                    # in a voice channel
                     voice_channel = message.guild.voice_client.channel
                     self._vote_skip(voice_channel, user)
                     # announce vote
