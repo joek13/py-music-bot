@@ -106,3 +106,6 @@ venv.bak/
 # config file
 config.toml
 **/config.toml
+
+# .vscode editor files
+.vscode
