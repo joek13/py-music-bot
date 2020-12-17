@@ -48,6 +48,7 @@ class Music(commands.Cog):
         self.config = config[__name__.split(".")[
             -1]]  # retrieve module name, find config entry
         self.states = {}
+        self.bot.add_listener(self.on_reaction_add, "on_reaction_add")
 
     def get_state(self, guild):
         """Gets the state for `guild`, creating it if it does not exist."""
