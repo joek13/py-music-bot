@@ -7,6 +7,15 @@ import math
 from urllib import request
 from ..video import Video
 
+# TODO: abstract FFMPEG options into their own file?
+FFMPEG_BEFORE_OPTS = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
+"""
+Command line options to pass to `ffmpeg` before the `-i`.
+
+See https://stackoverflow.com/questions/43218292/youtubedl-read-error-with-discord-py/44490434#44490434 for more information.
+Also, https://ffmpeg.org/ffmpeg-protocols.html for command line option reference.
+"""
+
 
 async def audio_playing(ctx):
     """Checks that audio is currently playing before continuing."""
@@ -158,7 +167,7 @@ class Music(commands.Cog):
         state.now_playing = song
         state.skip_votes = set()  # clear skip votes
         source = discord.PCMVolumeTransformer(
-            discord.FFmpegPCMAudio(song.stream_url, before_options='-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'), volume=state.volume)
+            discord.FFmpegPCMAudio(song.stream_url, before_options=FFMPEG_BEFORE_OPTS), volume=state.volume)
 
         def after_playing(err):
             if len(state.playlist) > 0:
