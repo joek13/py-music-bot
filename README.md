@@ -40,6 +40,14 @@ When you run the bot for the first time, a default configuration file will be ge
 
 If you ever wish to restore the bot to default configuration, you can simply delete (or rename) your config file. A new one will be generated upon startup.
 
+## Docker Containerization
+
+For dockerization to work, you need to complete first time setup. After that you could just use docker commands as usual.
+
+```
+docker build . -t py-music-bot:latest
+```
+
 ## Commands
 From the bot's `help` command:
 ```
