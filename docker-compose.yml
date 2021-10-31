@@ -1,0 +1,7 @@
+version: "2.2"
+services:
+  discordmusicbot:
+    image: rahools/discord-music-bot:latest
+    restart: always
+    env_file:
+    - musicBot.env
