@@ -4,6 +4,7 @@ import sys
 from discord.ext import commands
 from .cogs import music, error, meta, tips
 from . import config
+import os
 
 cfg = config.load_config()
 
@@ -25,9 +26,14 @@ def add_cogs(bot):
 
 def run():
     add_cogs(bot)
-    if cfg["token"] == "":
-        raise ValueError(
-            "No token has been provided. Please ensure that config.toml contains the bot token."
-        )
-        sys.exit(1)
-    bot.run(cfg["token"])
+    if os.getenv("MUSIC_BOT_TOKEN"):
+        logging.info(f"Setting bot token from environment variable.")
+        bot.run(os.getenv("MUSIC_BOT_TOKEN"))
+    else:
+        logging.warning(f"Setting bot token from config file.")
+        if cfg["token"] == "":
+            raise ValueError(
+                "No token has been provided. Please ensure that config.toml contains the bot token."
+            )
+            sys.exit(1)
+        bot.run(cfg["token"])
