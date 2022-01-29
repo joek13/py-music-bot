@@ -28,12 +28,13 @@ def run():
     add_cogs(bot)
     if os.getenv("MUSIC_BOT_TOKEN"):
         logging.info(f"Setting bot token from environment variable.")
-        bot.run(os.getenv("MUSIC_BOT_TOKEN"))
+        bot_token = os.getenv("MUSIC_BOT_TOKEN")
     else:
         logging.warning(f"Setting bot token from config file.")
-        if cfg["token"] == "":
-            raise ValueError(
-                "No token has been provided. Please ensure that config.toml contains the bot token."
-            )
-            sys.exit(1)
-        bot.run(cfg["token"])
+        bot_token = cfg["token"]
+    if bot_token == "":
+        raise ValueError(
+            "No token has been provided. Please ensure that config.toml contains the bot token."
+        )
+        sys.exit(1)
+    bot.run(bot_token)
