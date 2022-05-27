@@ -162,7 +162,6 @@ class Music(commands.Cog):
                 users_in_channel) >= self.config["vote_skip_ratio"]:
             # enough members have voted to skip, so skip the song
             logging.info(f"Enough votes, skipping...")
-            self.bot.dispatch("finished_song", state)
             channel.guild.voice_client.stop()
 
     def _play_song(self, client, state, song):
