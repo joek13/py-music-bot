@@ -58,6 +58,7 @@ class Music(commands.Cog):
             -1]]  # retrieve module name, find config entry
         self.states = {}
         self.bot.add_listener(self.on_reaction_add, "on_reaction_add")
+        self.bot.add_listener(self.on_finished_song, "on_finished_song")
 
     def get_state(self, guild):
         """Gets the state for `guild`, creating it if it does not exist."""
@@ -174,6 +175,7 @@ class Music(commands.Cog):
                 next_song = state.playlist.pop(0)
                 self._play_song(client, state, next_song)
             else:
+                self.bot.dispatch("finished_song", state)
                 asyncio.run_coroutine_threadsafe(client.disconnect(),
                                                  self.bot.loop)
 
@@ -186,7 +188,7 @@ class Music(commands.Cog):
         """Displays information about the current song."""
         state = self.get_state(ctx.guild)
         message = await ctx.send("", embed=state.now_playing.get_embed())
-        await self._add_reaction_controls(message)
+        await self._add_reaction_controls(state, message)
 
     @commands.command(aliases=["q", "playlist"])
     @commands.guild_only()
@@ -251,7 +253,7 @@ class Music(commands.Cog):
             state.playlist.append(video)
             message = await ctx.send(
                 "Added to queue.", embed=video.get_embed())
-            await self._add_reaction_controls(message)
+            await self._add_reaction_controls(state, message)
         else:
             if ctx.author.voice is not None and ctx.author.voice.channel is not None:
                 channel = ctx.author.voice.channel
@@ -264,11 +266,14 @@ class Music(commands.Cog):
                 client = await channel.connect()
                 self._play_song(client, state, video)
                 message = await ctx.send("", embed=video.get_embed())
-                await self._add_reaction_controls(message)
+                await self._add_reaction_controls(state, message)
                 logging.info(f"Now playing '{video.title}'")
             else:
                 raise commands.CommandError(
                     "You need to be in a voice channel to do that.")
+
+    async def on_finished_song(self, state):
+        await self._remove_reaction_controls(state)
 
     async def on_reaction_add(self, reaction, user):
         """Respods to reactions added to the bot's messages, allowing reactions to control playback."""
@@ -312,12 +317,20 @@ class Music(commands.Cog):
                         f"{user.mention} voted to skip ({len(state.skip_votes)}/{required_votes} votes)"
                     )
 
-    async def _add_reaction_controls(self, message):
+    async def _add_reaction_controls(self, state, message):
         """Adds a 'control-panel' of reactions to a message that can be used to control the bot."""
         CONTROLS = ["⏮", "⏯", "⏭"]
         for control in CONTROLS:
             await message.add_reaction(control)
+        await self._remove_reaction_controls(state)
+        state.active_message = message
 
+
+    async def _remove_reaction_controls(self, state): #clears previous active_message controls
+        if state.active_message:
+            await state.active_message.clear_reactions()
+            state.active_message = None
+        
 
 class GuildState:
     """Helper class managing per-guild state."""
@@ -327,6 +340,7 @@ class GuildState:
         self.playlist = []
         self.skip_votes = set()
         self.now_playing = None
+        self.active_message = None
 
     def is_requester(self, user):
         return self.now_playing.requested_by == user
